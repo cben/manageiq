@@ -338,6 +338,22 @@ class EmsEvent < EventStream
     ext_management_system
   end
 
+  def src_container_project
+    ContainerProject.find_by(:ems_id => ems_id, :name => container_namespace)
+  end
+
+  def src_container_replicator
+    src_container_project.try(:container_replicators).try(:find_by, :name => container_replicator_name)
+  end
+
+  def src_container_group
+    src_container_project.try(:container_groups).try(:find_by, :name => container_group_name)
+  end
+
+  def src_container_node
+    ContainerNode.find_by(:ems_id => ems_id, :name => container_node_name)
+  end
+
   #
   # Purging methods
   #
