@@ -968,6 +968,7 @@ class MiqPolicyController < ApplicationController
         @folders = POLICY_FOLDERS[mode].collect do |model|
           "#{model.name.titleize} #{mode.titleize}"
         end
+        $log.info("@@@@@@@@@@@@@@ #{@folders}")
         @right_cell_text = _("%{typ} %{model}") % {:typ => mode.titleize, :model => ui_lookup(:models => "MiqPolicy")}
       else
         # level 2 - host, vm, etc. under compliance/control - OR deeper levels

@@ -42,6 +42,7 @@ class MiqEvent < EventStream
     inputs.merge!('MiqEvent::miq_event' => event_obj.id, :miq_event_id => event_obj.id)
     inputs.merge!('EventStream::event_stream' => event_obj.id, :event_stream_id => event_obj.id)
 
+    #byebug_term if raw_event.include?("container")
     MiqAeEvent.raise_evm_event(raw_event, target, inputs, options)
     event_obj
   end

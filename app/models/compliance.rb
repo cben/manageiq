@@ -57,6 +57,7 @@ class Compliance < ApplicationRecord
   end
 
   def self.check_compliance(target, _inputs = {})
+    byebug_term
     if target.kind_of?(Array)
       klass, id = target
       klass = Object.const_get(klass)

@@ -38,7 +38,10 @@ module ManageIQ::Providers::Kubernetes::ContainerManager::EventCatcherMixin
     # TODO: since event_monitor_handle is returning only events that
     # are generated starting from this moment we need to pull the
     # entire # inventory to make sure that it's up-to-date.
+    _log.info('@@@@@@@@@@ monitor_events')
+    _log.info(caller.to_s)
     event_monitor_handle.each do |event|
+      _log.info("event_monitor_handle.each -> #{event}")
       # Sleeping here is not necessary because the events are delivered
       # asynchronously when available.
       @queue.enq event

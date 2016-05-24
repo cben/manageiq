@@ -72,6 +72,7 @@ module MiqAeEngine
     end
 
     def self.miq_event_action_policy(obj, inputs)
+      $log.info("@@@@@@@@@@ event_action_policy #{obj}, #{inputs}")
       event_object_from_workspace(obj).policy(inputs['target'], inputs['policy_event'], inputs['param'])
     end
 

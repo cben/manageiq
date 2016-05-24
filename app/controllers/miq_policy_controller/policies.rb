@@ -188,6 +188,7 @@ module MiqPolicyController::Policies
     @edit[:new][:active] = @policy.active.nil? ? true : @policy.active                    # Set active, default to true
     @edit[:new][:notes] = @policy.notes
     @edit[:new][:towhat] = @policy.id ? @policy.towhat : @sb[:folder].split('-').last.camelize # Set the towhat model
+    $log.info("@@@@@@@@@@@ @edit[:new][:towhat] = #{@edit[:new][:towhat]}")
 
     case @edit[:typ]  # Build fields based on what is being edited
     when "conditions" # Editing condition assignments

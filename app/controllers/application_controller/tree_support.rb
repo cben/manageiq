@@ -2,6 +2,7 @@ module ApplicationController::TreeSupport
   extend ActiveSupport::Concern
 
   def squash_toggle
+    byebug_term
     @record = find_record
     item = "h_#{@record.name}"
     render :update do |page|
