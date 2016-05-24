@@ -957,6 +957,7 @@ class MiqPolicyController < ApplicationController
         @folders = MiqPolicy::UI_FOLDERS.collect do |model|
           "#{model.name.titleize} #{nodetype.split('-').last.titleize}"
         end
+        $log.info("@@@@@@@@@@@@@@ #{@folders}")
         @right_cell_text = _("%{typ} %{model}") % {:typ => nodetype.split('-').last.titleize, :model => ui_lookup(:models => "MiqPolicy")}
       else
         @sb[:mode] = nodeid.split("-")[1]

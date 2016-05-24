@@ -228,6 +228,9 @@ class EmsEvent < EventStream
     target_type = "src_vm_or_template"  if target_type == "src_vm"
     target_type = "dest_vm_or_template" if target_type == "dest_vm"
 
+    _log.info("@@@@@@@@@@ #{event} . #{target_type}")
+    #byebug_term if target_type != "ems_refresh_target"
+
     event.send(target_type)
   end
 
@@ -346,6 +349,7 @@ class EmsEvent < EventStream
     src_container_project!.container_replicators.find_by!(:name => container_replicator_name)
   rescue ActiveRecord::RecordNotFound
     _log.warn("Unable to find target ContainerReplicator for event: #{inspect}")
+    byebug_term
     nil
   end
 
@@ -353,6 +357,7 @@ class EmsEvent < EventStream
     src_container_project!.container_groups.find_by!(:name => container_group_name)
   rescue ActiveRecord::RecordNotFound
     _log.warn("Unable to find target ContainerGroup for event: #{inspect}")
+    byebug_term
     nil
   end
 
@@ -360,6 +365,7 @@ class EmsEvent < EventStream
     ContainerNode.find_by!(:ems_id => ems_id, :name => container_node_name)
   rescue ActiveRecord::RecordNotFound
     _log.warn("Unable to find target ContainerNode for event: #{inspect}")
+    byebug_term
     nil
   end
 
