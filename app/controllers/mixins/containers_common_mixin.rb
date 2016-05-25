@@ -29,6 +29,7 @@ module ContainersCommonMixin
     assign_policies(ContainerReplicator) if params[:pressed] == "container_replicator_protect"
     assign_policies(ContainerGroup) if params[:pressed] == "container_group_protect"
     assign_policies(ContainerNode) if params[:pressed] == "container_node_protect"
+    # TODO: what 3 above's _check_compliance does?
     assign_policies(ContainerImage) if params[:pressed] == "container_image_protect"
     check_compliance_images if params[:pressed] == "container_image_check_compliance"
     return if ["#{params[:controller]}_tag"].include?(params[:pressed]) && @flash_array.nil? # Tag screen showing

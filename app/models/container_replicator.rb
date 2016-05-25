@@ -1,5 +1,6 @@
 class ContainerReplicator < ApplicationRecord
   include CustomAttributeMixin
+  include ComplianceMixin
   include MiqPolicyMixin
   include ReportableMixin
 

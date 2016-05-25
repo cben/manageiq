@@ -1,5 +1,6 @@
 class ContainerGroup < ApplicationRecord
   include CustomAttributeMixin
+  include ComplianceMixin
   include MiqPolicyMixin
   include ReportableMixin
   include NewWithTypeStiMixin
