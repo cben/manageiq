@@ -1186,7 +1186,7 @@
         :queue_timeout: 10.minutes
       :ems_metrics_collector_worker:
         :defaults:
-          :count: 2
+          :count: 1
           :nice_delta: 3
           :poll_method: :escalate
         :ems_metrics_collector_worker_azure: {}
@@ -1204,7 +1204,7 @@
         :ems_metrics_collector_worker_redhat: {}
         :ems_metrics_collector_worker_vmware: {}
       :ems_metrics_processor_worker:
-        :count: 2
+        :count: 1
         :memory_threshold: 400.megabytes
         :nice_delta: 7
         :poll_method: :escalate
@@ -1240,7 +1240,7 @@
         :cpu_usage_threshold: 0.percent
         :nice_delta: 7
       :generic_worker:
-        :count: 2
+        :count: 1
       :netapp_refresh_worker:
         :memory_threshold: 2.gigabytes
         :nice_delta: 7
@@ -1248,19 +1248,19 @@
         :poll_method: :normal
         :queue_timeout: 60.minutes
       :priority_worker:
-        :count: 2
+        :count: 1
         :nice_delta: 1
         :poll: 1.seconds
       :reporting_worker:
-        :count: 2
+        :count: 1
         :nice_delta: 7
       :smart_proxy_worker:
-        :count: 2
+        :count: 1
         :memory_threshold: 600.megabytes
         :queue_timeout: 20.minutes
         :restart_interval: 2.hours
       :storage_metrics_collector_worker:
-        :count: 2
+        :count: 1
         :nice_delta: 3
         :poll_method: :escalate
       :vmdb_storage_bridge_worker:
