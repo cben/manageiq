@@ -338,6 +338,31 @@ class EmsEvent < EventStream
     ext_management_system
   end
 
+  def src_container_project!
+    ContainerProject.find_by!(:ems_id => ems_id, :name => container_namespace)
+  end
+
+  def src_container_replicator
+    src_container_project!.container_replicators.find_by!(:name => container_replicator_name)
+  rescue ActiveRecord::RecordNotFound
+    _log.warn("Unable to find target ContainerReplicator for event: #{inspect}")
+    nil
+  end
+
+  def src_container_group
+    src_container_project!.container_groups.find_by!(:name => container_group_name)
+  rescue ActiveRecord::RecordNotFound
+    _log.warn("Unable to find target ContainerGroup for event: #{inspect}")
+    nil
+  end
+
+  def src_container_node
+    ContainerNode.find_by!(:ems_id => ems_id, :name => container_node_name)
+  rescue ActiveRecord::RecordNotFound
+    _log.warn("Unable to find target ContainerNode for event: #{inspect}")
+    nil
+  end
+
   #
   # Purging methods
   #
