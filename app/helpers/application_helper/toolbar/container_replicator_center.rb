@@ -63,6 +63,12 @@ class ApplicationHelper::Toolbar::ContainerReplicatorCenter < ApplicationHelper:
           'pficon pficon-edit fa-lg',
           N_('Manage Policies for this #{ui_lookup(:table=>"container_replicator")}'),
           N_('Manage Policies')),
+        button(
+          :container_replicator_check_compliance,
+          'fa fa-search fa-lg',
+          N_('Check Compliance of the last known configuration for this item'),
+          N_('Check Compliance of Last Known Configuration'),
+          :confirm => N_("Initiate Check Compliance of the last known configuration for this item?")),
       ]
     ),
   ])
