@@ -1,5 +1,6 @@
 class ContainerGroup < ApplicationRecord
   include CustomAttributeMixin
+  include ComplianceMixin
   include NewWithTypeStiMixin
 
   # :name, :uid, :creation_timestamp, :resource_version, :namespace

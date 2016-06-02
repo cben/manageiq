@@ -1,5 +1,6 @@
 class ContainerReplicator < ApplicationRecord
   include CustomAttributeMixin
+  include ComplianceMixin
 
   belongs_to  :ext_management_system, :foreign_key => "ems_id"
   has_many :container_groups

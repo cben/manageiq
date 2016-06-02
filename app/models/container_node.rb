@@ -1,4 +1,5 @@
 class ContainerNode < ApplicationRecord
+  include ComplianceMixin
   include NewWithTypeStiMixin
 
   # :name, :uid, :creation_timestamp, :resource_version

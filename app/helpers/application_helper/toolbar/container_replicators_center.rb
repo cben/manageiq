@@ -55,6 +55,15 @@ class ApplicationHelper::Toolbar::ContainerReplicatorsCenter < ApplicationHelper
           :url_parms => "main_div",
           :enabled   => "false",
           :onwhen    => "1+"),
+        button(
+          :container_replicator_check_compliance,
+          'fa fa-search fa-lg',
+          N_('Check Compliance of the last known configuration for the selected items'),
+          N_('Check Compliance of Last Known Configuration'),
+          :url_parms => "main_div",
+          :confirm   => N_("Initiate Check Compliance of the last known configuration for the selected items?"),
+          :enabled   => "false",
+          :onwhen    => "1+")
       ]
     ),
   ])
