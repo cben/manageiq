@@ -1380,7 +1380,7 @@
       :job_timeout_interval: 60.seconds
       :log_active_configuration_interval: 1.days
       :log_database_statistics_interval: 1.days
-      :memory_threshold: 300.megabytes
+      :memory_threshold: 400.megabytes
       :nice_delta: 3
       :orchestration_stack_retired_interval: 10.minutes
       :performance_collection_interval: 3.minutes
