@@ -646,6 +646,7 @@ class MiqPolicyController < ApplicationController
                                                     :model => ui_lookup(:models => 'MiqPolicy')}
           r[:partial => 'policy_folders']
         elsif @alert_profiles
+          # TODO: @sb[:folder] == "xx-Storage", "ap-44"
           right_cell_text = _("All %{typ} %{model}") % {:typ   => ui_model_from_id(@sb[:folder]),
                                                         :model => ui_lookup(:models => 'MiqAlertSet')}
           r[:partial => 'alert_profile_list']
@@ -996,12 +997,14 @@ class MiqPolicyController < ApplicationController
       @conditions = Condition.where(:towhat => @sb[:folder].camelize).sort_by { |c| c.description.downcase }
       set_search_text
       @conditions = apply_search_filter(@search_text, @conditions) unless @search_text.blank?
+      # TODO: @sb[:folder] == "co-1"
       @right_cell_text = _("All %{typ} Conditions") % {:typ => ui_model_from_id(@sb[:folder])}
       @right_cell_div = "condition_list"
     elsif x_active_tree == :alert_profile_tree
       @alert_profiles = MiqAlertSet.where(:mode => @sb[:folder]).sort_by { |as| as.description.downcase }
       set_search_text
       @alert_profiles = apply_search_filter(@search_text, @alert_profiles) unless @search_text.blank?
+      # TODO: @sb[:folder] == "xx-Storage", "ap-47"
       @right_cell_text = _("All %{typ} Alert Profiles") % {:typ => ui_model_from_id(@sb[:folder])}
       @right_cell_div = "alert_profile_list"
     end
