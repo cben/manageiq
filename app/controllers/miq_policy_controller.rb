@@ -363,6 +363,18 @@ class MiqPolicyController < ApplicationController
                        :message => _("Policy log downloaded"))
   end
 
+  # Not necessarily a whole id, but the kind of lowerCamelCase we use for model names
+  # within ids like 'po_xx-control_xx-control-containerImage'.
+  def ui_model_from_id(id)
+    return nil if id.nil?  # TODO: fix callers, remove
+    ui_lookup(:model => id.camelize)
+  end
+
+  def ui_models_from_id(id)
+    return nil if id.nil?  # TODO: fix callers, remove
+    ui_lookup(:models => id.camelize)
+  end
+
   private
 
   def import_as_json(yaml_array)
@@ -373,7 +385,7 @@ class MiqPolicyController < ApplicationController
     items.each do |item|
       entry = {
         :id     => result.count.to_s,
-        :type   => ui_lookup(:model => item[:class]),
+        :type   => ui_model_from_id(item[:class]),
         :title  => item[:description],
         :parent => parent_id,
         :icon   => get_status_icon(item[:status])
@@ -592,7 +604,7 @@ class MiqPolicyController < ApplicationController
     # Replace right side with based on selected tree node type
     case nodetype
     when 'root'
-      partial_name, model =
+      partial_name, models =
       case x_active_tree
       when :policy_profile_tree then ['profile_list',          ui_lookup(:models => 'MiqPolicySet')]
       when :policy_tree         then ['policy_folders',        ui_lookup(:models => 'MiqPolicy')]
@@ -604,7 +616,7 @@ class MiqPolicyController < ApplicationController
       end
 
       presenter.update(:main_div, r[:partial => partial_name])
-      right_cell_text = _("All %{models}") % {:models => model}
+      right_cell_text = _("All %{models}") % {:models => models}
     when 'pp'
       presenter.update(:main_div, r[:partial => 'profile_details'])
       right_cell_text =
@@ -619,16 +631,19 @@ class MiqPolicyController < ApplicationController
         if @profiles
           r[:partial => 'profile_list']
         elsif @policies || (@view && @sb[:tree_typ] == 'policies')
-          right_cell_text = _("All %{typ} %{model}") % {:typ => "#{ui_lookup(:model => @sb[:nodeid])} #{@sb[:mode] ? @sb[:mode].capitalize : ""}", :model => ui_lookup(:models => "MiqPolicy")}
+          right_cell_text = _("All %{typ} %{model}") % {:typ   => "#{ui_model_from_id(@sb[:nodeid])} #{@sb[:mode] ? @sb[:mode].capitalize : ""}",
+                                                        :model => ui_lookup(:models => "MiqPolicy")}
           r[:partial => 'policy_list']
         elsif @conditions
-          right_cell_text = _("All %{typ} %{model}") % {:typ => ui_lookup(:model => @sb[:folder].titleize), :model => ui_lookup(:models => 'Condition')}
+          right_cell_text = _("All %{typ} %{model}") % {:typ   => ui_model_from_id(@sb[:folder]),
+                                                        :model => ui_lookup(:models => 'Condition')}
           r[:partial => 'condition_list']
         elsif @folders
-          right_cell_text = _("%{typ} %{model}") % {:typ => ui_lookup(:model => @sb[:folder]), :model => ui_lookup(:models => 'MiqPolicy')}
+          right_cell_text = _("%{typ} %{model}") % {:typ   => ui_model_from_id(@sb[:folder]),
+                                                    :model => ui_lookup(:models => 'MiqPolicy')}
           r[:partial => 'policy_folders']
         elsif @alert_profiles
-          right_cell_text = _("All %{typ} %{model}") % {:typ   => ui_lookup(:model => @sb[:folder]),
+          right_cell_text = _("All %{typ} %{model}") % {:typ   => ui_model_from_id(@sb[:folder]),
                                                         :model => ui_lookup(:models => 'MiqAlertSet')}
           r[:partial => 'alert_profile_list']
         end
@@ -638,14 +653,14 @@ class MiqPolicyController < ApplicationController
       if @policy.id.blank?
         right_cell_text = if @sb[:mode]
                             _("Adding a new %{model_name} %{mode} Policy") %
-                            {:model_name => ui_lookup(:model => @sb[:nodeid]), :mode => @sb[:mode].capitalize}
+                            {:model_name => ui_model_from_id(@sb[:nodeid]), :mode => @sb[:mode].capitalize}
                           else
-                            _("Adding a new %{model_name} Policy") % {:model_name => ui_lookup(:model => @sb[:nodeid])}
+                            _("Adding a new %{model_name} Policy") % {:model_name => ui_model_from_id(@sb[:nodeid])}
                           end
       else
-        right_cell_text = @edit ?
-            _("Editing %{model} \"%{name}\"") % {:model => "#{ui_lookup(:model => @sb[:nodeid])} #{@sb[:mode] ? @sb[:mode].capitalize : ""} Policy", :name => @policy.description.gsub(/'/, "\\'")} :
-            _("%{model} \"%{name}\"") % {:model => "#{ui_lookup(:model => @sb[:nodeid])} #{@sb[:mode] ? @sb[:mode].capitalize : ""} Policy", :name => @policy.description.gsub(/'/, "\\'")}
+        options = {:model => "#{ui_model_from_id(@sb[:nodeid])} #{@sb[:mode] ? @sb[:mode].capitalize : ""} Policy",
+                   :name => @policy.description.gsub(/'/, "\\'")}
+        right_cell_text = _(@edit ? "Editing %{model} \"%{name}\"" : "%{model} \"%{name}\"") % options
         if @edit && @edit[:typ] == 'conditions'
           right_cell_text += _(" %{model} Assignments") % {:model => ui_lookup(:model => 'Condition')}
         end
@@ -670,14 +685,13 @@ class MiqPolicyController < ApplicationController
       right_cell_text = if @condition.id.blank?
                           _("Adding a new %{model}") % {:model => ui_lookup(:model => 'Condition')}
                         else
+                          name = @condition.description.gsub(/'/, "\\'")
                           if @right_cell_text == @edit
                             _("Editing %{model} Condition \"%{name}\"") %
-                            {:name  => @condition.description.gsub(/'/, "\\'"),
-                             :model => ui_lookup(:model => @edit[:new][:towhat])}
+                            {:model => ui_model_from_id(@edit[:new][:towhat]), :name => name}
                           else
                             _("%{model} Condition \"%{name}\"") %
-                            {:name  => @condition.description.gsub(/'/, "\\'"),
-                             :model => ui_lookup(:model => @condition.towhat)}
+                            {:model => ui_model_from_id(@condition.towhat), :name => name}
                           end
                         end
     when 'ev'
@@ -689,23 +703,19 @@ class MiqPolicyController < ApplicationController
       right_cell_text = if @action.id.blank?
                           _("Adding a new %{record}") % {:record => ui_lookup(:model => 'MiqAction')}
                         else
-                          if @edit
-                            _("Editing %{model} \"%{name}\"") %
-                            {:name  => @action.description.gsub(/'/, "\\\\'"),
-                             :model => ui_lookup(:model => 'MiqAction')}
-                          else
-                            _("%{model} \"%{name}\"") %
-                            {:name  => @action.description.gsub(/'/, "\\\\'"),
-                             :model => ui_lookup(:model => 'MiqAction')}
-                          end
+                          options = {:model => ui_lookup(:model => 'MiqAction'),
+                                     :name  => @action.description.gsub(/'/, "\\\\'")}
+                          @edit ? _("Editing %{model} \"%{name}\"") % options :
+                                  _("%{model} \"%{name}\"") % options
                         end
     when 'ap'
       presenter.update(:main_div, r[:partial => 'alert_profile_details', :locals => {:read_only => true}])
       right_cell_text = if @alert_profile.id.blank?
                           _("Adding a new %{record}") % {:record => ui_lookup(:model => 'MiqAlertSet')}
                         else
-                          @edit ? _("Editing %{model} \"%{name}\"") % {:name => @alert_profile.description.gsub(/'/, "\\'"), :model => "#{ui_lookup(:model => @edit[:new][:mode])} #{ui_lookup(:model => 'MiqAlertSet')}"} :
-                                  _("%{model} \"%{name}\"") % {:name => @alert_profile.description.gsub(/'/, "\\'"), :model => ui_lookup(:model => 'MiqAlertSet')}
+                          name = @alert_profile.description.gsub(/'/, "\\'")
+                          @edit ? _("Editing %{model} \"%{name}\"") % {:model => "#{ui_model_from_id(@edit[:new][:mode])} #{ui_lookup(:model => 'MiqAlertSet')}", :name => name} :
+                                  _("%{model} \"%{name}\"") % {:model => ui_lookup(:model => 'MiqAlertSet'), :name => name}
                         end
     when 'al'
       presenter.update(:main_div, r[:partial => 'alert_details', :locals => {:read_only => true}])
@@ -965,20 +975,21 @@ class MiqPolicyController < ApplicationController
         @sb[:folder] = "#{nodeid.split("-")[1]}-#{nodeid.split("-")[2]}"
         set_search_text
         policy_get_all if folder_node.split("_").length <= 2
-        @right_cell_text = _("All %{typ} %{model}") % {:typ => ui_lookup(:model => @sb[:nodeid]), :model => ui_lookup(:models => "MiqPolicy")}
+        @right_cell_text = _("All %{typ} %{model}") % {:typ   => ui_model_from_id(@sb[:nodeid]),
+                                                       :model => ui_lookup(:models => "MiqPolicy")}
         @right_cell_div = "policy_list"
       end
     elsif x_active_tree == :condition_tree
       @conditions = Condition.where(:towhat => @sb[:folder].camelize).sort_by { |c| c.description.downcase }
       set_search_text
       @conditions = apply_search_filter(@search_text, @conditions) unless @search_text.blank?
-      @right_cell_text = _("All %{typ} Conditions") % {:typ => ui_lookup(:model => @sb[:folder])}
+      @right_cell_text = _("All %{typ} Conditions") % {:typ => ui_model_from_id(@sb[:folder])}
       @right_cell_div = "condition_list"
     elsif x_active_tree == :alert_profile_tree
       @alert_profiles = MiqAlertSet.where(:mode => @sb[:folder]).sort_by { |as| as.description.downcase }
       set_search_text
       @alert_profiles = apply_search_filter(@search_text, @alert_profiles) unless @search_text.blank?
-      @right_cell_text = _("All %{typ} Alert Profiles") % {:typ => ui_lookup(:model => @sb[:folder])}
+      @right_cell_text = _("All %{typ} Alert Profiles") % {:typ => ui_model_from_id(@sb[:folder])}
       @right_cell_div = "alert_profile_list"
     end
   end

@@ -8,10 +8,10 @@ module MiqPolicyController::Conditions
       return unless load_edit("condition_edit__#{id}", "replace_cell__explorer")
       @condition = @edit[:condition_id] ? Condition.find_by_id(@edit[:condition_id]) : Condition.new
       if @condition && @condition.id
-        add_flash(_("Edit of %{model} \"%{name}\" was cancelled by the user") % {:model => "#{ui_lookup(:model => @edit[:new][:towhat])} #{ui_lookup(:model => "Condition")}", :name => @condition.description})
+        add_flash(_("Edit of %{model} \"%{name}\" was cancelled by the user") % {:model => "#{ui_model_from_id(@edit[:new][:towhat])} #{ui_lookup(:model => "Condition")}", :name => @condition.description})
       else
         add_flash(_("Add of new %{model} was cancelled by the user") %
-          {:model => "#{ui_lookup(:model => @edit[:new][:towhat])} #{ui_lookup(:model => "Condition")}"})
+          {:model => "#{ui_model_from_id(@edit[:new][:towhat])} #{ui_lookup(:model => "Condition")}"})
       end
       @edit = nil
       get_node_info(x_node)

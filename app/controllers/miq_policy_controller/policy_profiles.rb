@@ -120,11 +120,11 @@ module MiqPolicyController::PolicyProfiles
 
     @edit[:new][:policies] = {}
     policies = @profile.members     # Get the member sets
-    policies.each { |p| @edit[:new][:policies][ui_lookup(:model => p.towhat) + " #{p.mode.capitalize}: " + p.description] = p.id } # Build a hash for the members list box
+    policies.each { |p| @edit[:new][:policies][ui_model_from_id(p.towhat) + " #{p.mode.capitalize}: " + p.description] = p.id } # Build a hash for the members list box
 
     @edit[:choices] = {}
     MiqPolicy.all.each do |p|
-      @edit[:choices][ui_lookup(:model => p.towhat) + " #{p.mode.capitalize}: " + p.description] = p.id         # Build a hash for the policies to choose from
+      @edit[:choices][ui_model_from_id(p.towhat) + " #{p.mode.capitalize}: " + p.description] = p.id         # Build a hash for the policies to choose from
     end
 
     @edit[:new][:policies].each_key do |key|
