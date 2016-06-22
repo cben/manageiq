@@ -29,6 +29,9 @@ class Dictionary
 
   def self.i18n_lookup(type, text)
     result = I18n.t("dictionary.#{type}.#{text}", :locale => "en")
+    $log.info("#MISSING dictionary.#{type}.#{text}") if result.start_with?("translation missing:")
+    require 'byebug'
+    #byebug if "dictionary.#{type}.#{text}".include?(" ") or "dictionary.#{type}.#{text}".include?("-")
     result.start_with?("translation missing:") ? nil : result
   end
   private_class_method :i18n_lookup

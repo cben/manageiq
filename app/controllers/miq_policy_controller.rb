@@ -365,14 +365,20 @@ class MiqPolicyController < ApplicationController
 
   # Not necessarily a whole id, but the kind of lowerCamelCase we use for model names
   # within ids like 'po_xx-control_xx-control-containerImage'.
-  def ui_model_from_id(id)
+  def ui_model_from_id(id, old_id: id, lookup_key: :model)
     return nil if id.nil?  # TODO: fix callers, remove
-    ui_lookup(:model => id.camelize)
+    old = ui_lookup(lookup_key => old_id)
+    new_id = id.camelize
+    new = ui_lookup(lookup_key => new_id)
+    if new != old
+      m = ("#LOOKUP #{lookup_key} '#{old_id}' -> '#{new_id}' RETURNS '#{old}' -> '#{new}'")
+      $log.info(m); puts(m)
+    end
+    new
   end
 
   def ui_models_from_id(id)
-    return nil if id.nil?  # TODO: fix callers, remove
-    ui_lookup(:models => id.camelize)
+    ui_model_from_id(id, lookup_key: :models)
   end
 
   private
