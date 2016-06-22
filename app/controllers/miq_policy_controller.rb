@@ -605,15 +605,15 @@ class MiqPolicyController < ApplicationController
     case nodetype
     when 'root'
       partial_name, models =
-      case x_active_tree
-      when :policy_profile_tree then ['profile_list',          ui_lookup(:models => 'MiqPolicySet')]
-      when :policy_tree         then ['policy_folders',        ui_lookup(:models => 'MiqPolicy')]
-      when :event_tree          then ['event_list',            ui_lookup(:tables => 'miq_event_definition')]
-      when :condition_tree      then ['condition_folders',     ui_lookup(:models => 'Condition')]
-      when :action_tree         then ['action_list',           ui_lookup(:models => 'MiqAction')]
-      when :alert_profile_tree  then ['alert_profile_folders', ui_lookup(:models => 'MiqAlertSet')]
-      when :alert_tree          then ['alert_list',            ui_lookup(:models => 'MiqAlert')]
-      end
+        case x_active_tree
+        when :policy_profile_tree then ['profile_list',          ui_lookup(:models => 'MiqPolicySet')]
+        when :policy_tree         then ['policy_folders',        ui_lookup(:models => 'MiqPolicy')]
+        when :event_tree          then ['event_list',            ui_lookup(:tables => 'miq_event_definition')]
+        when :condition_tree      then ['condition_folders',     ui_lookup(:models => 'Condition')]
+        when :action_tree         then ['action_list',           ui_lookup(:models => 'MiqAction')]
+        when :alert_profile_tree  then ['alert_profile_folders', ui_lookup(:models => 'MiqAlertSet')]
+        when :alert_tree          then ['alert_list',            ui_lookup(:models => 'MiqAlert')]
+        end
 
       presenter.update(:main_div, r[:partial => partial_name])
       right_cell_text = _("All %{models}") % {:models => models}
@@ -631,8 +631,10 @@ class MiqPolicyController < ApplicationController
         if @profiles
           r[:partial => 'profile_list']
         elsif @policies || (@view && @sb[:tree_typ] == 'policies')
-          right_cell_text = _("All %{typ} %{model}") % {:typ   => "#{ui_model_from_id(@sb[:nodeid])} #{@sb[:mode] ? @sb[:mode].capitalize : ""}",
-                                                        :model => ui_lookup(:models => "MiqPolicy")}
+          right_cell_text = _("All %{typ} %{model}") % {
+            :typ   => "#{ui_model_from_id(@sb[:nodeid])} #{@sb[:mode] ? @sb[:mode].capitalize : ""}",
+            :model => ui_lookup(:models => "MiqPolicy")
+          }
           r[:partial => 'policy_list']
         elsif @conditions
           right_cell_text = _("All %{typ} %{model}") % {:typ   => ui_model_from_id(@sb[:folder]),
@@ -650,16 +652,17 @@ class MiqPolicyController < ApplicationController
       )
     when 'p'
       presenter.update(:main_div, r[:partial => 'policy_details', :locals => {:read_only => true}])
+      model_name = ui_model_from_id(@sb[:nodeid])
       if @policy.id.blank?
         right_cell_text = if @sb[:mode]
                             _("Adding a new %{model_name} %{mode} Policy") %
-                            {:model_name => ui_model_from_id(@sb[:nodeid]), :mode => @sb[:mode].capitalize}
+                              {:model_name => model_name, :mode => @sb[:mode].capitalize}
                           else
-                            _("Adding a new %{model_name} Policy") % {:model_name => ui_model_from_id(@sb[:nodeid])}
+                            _("Adding a new %{model_name} Policy") % {:model_name => model_name}
                           end
       else
-        options = {:model => "#{ui_model_from_id(@sb[:nodeid])} #{@sb[:mode] ? @sb[:mode].capitalize : ""} Policy",
-                   :name => @policy.description.gsub(/'/, "\\'")}
+        options = {:model => "#{model_name} #{@sb[:mode] ? @sb[:mode].capitalize : ""} Policy",
+                   :name  => @policy.description.gsub(/'/, "\\'")}
         right_cell_text = _(@edit ? "Editing %{model} \"%{name}\"" : "%{model} \"%{name}\"") % options
         if @edit && @edit[:typ] == 'conditions'
           right_cell_text += _(" %{model} Assignments") % {:model => ui_lookup(:model => 'Condition')}
@@ -688,10 +691,10 @@ class MiqPolicyController < ApplicationController
                           name = @condition.description.gsub(/'/, "\\'")
                           if @right_cell_text == @edit
                             _("Editing %{model} Condition \"%{name}\"") %
-                            {:model => ui_model_from_id(@edit[:new][:towhat]), :name => name}
+                              {:model => ui_model_from_id(@edit[:new][:towhat]), :name => name}
                           else
                             _("%{model} Condition \"%{name}\"") %
-                            {:model => ui_model_from_id(@condition.towhat), :name => name}
+                              {:model => ui_model_from_id(@condition.towhat), :name => name}
                           end
                         end
     when 'ev'
@@ -714,8 +717,17 @@ class MiqPolicyController < ApplicationController
                           _("Adding a new %{record}") % {:record => ui_lookup(:model => 'MiqAlertSet')}
                         else
                           name = @alert_profile.description.gsub(/'/, "\\'")
-                          @edit ? _("Editing %{model} \"%{name}\"") % {:model => "#{ui_model_from_id(@edit[:new][:mode])} #{ui_lookup(:model => 'MiqAlertSet')}", :name => name} :
-                                  _("%{model} \"%{name}\"") % {:model => ui_lookup(:model => 'MiqAlertSet'), :name => name}
+                          if @edit
+                            _("Editing %{model} \"%{name}\"") % {
+                              :model => "#{ui_model_from_id(@edit[:new][:mode])} #{ui_lookup(:model => 'MiqAlertSet')}",
+                              :name  => name
+                            }
+                          else
+                            _("%{model} \"%{name}\"") % {
+                              :model => ui_lookup(:model => 'MiqAlertSet'),
+                              :name  => name
+                            }
+                          end
                         end
     when 'al'
       presenter.update(:main_div, r[:partial => 'alert_details', :locals => {:read_only => true}])

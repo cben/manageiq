@@ -105,12 +105,16 @@ module MiqPolicyController::PolicyProfiles
     process_elements(profiles, MiqPolicySet, task)
   end
 
+  def policy_list_entry_text(policy)
+    "#{ui_model_from_id(policy.towhat)} #{policy.mode.capitalize}: #{policy.description}"
+  end
+
   def profile_build_edit_screen
     @edit = {}
     @edit[:new] = {}
     @edit[:current] = {}
 
-    @profile = params[:id] ? MiqPolicySet.find(params[:id]) : MiqPolicySet.new            # Get existing or new record
+    @profile = params[:id] ? MiqPolicySet.find(params[:id]) : MiqPolicySet.new # Get existing or new record
     @edit[:key] = "profile_edit__#{@profile.id || "new"}"
     @edit[:rec_id] = @profile.id || nil
 
@@ -120,22 +124,26 @@ module MiqPolicyController::PolicyProfiles
 
     @edit[:new][:policies] = {}
     policies = @profile.members     # Get the member sets
-    policies.each { |p| @edit[:new][:policies][ui_model_from_id(p.towhat) + " #{p.mode.capitalize}: " + p.description] = p.id } # Build a hash for the members list box
+    policies.each do |p|
+      # Build a hash for the members list box
+      @edit[:new][:policies][policy_list_entry_text(p)] = p.id
+    end
 
     @edit[:choices] = {}
     MiqPolicy.all.each do |p|
-      @edit[:choices][ui_model_from_id(p.towhat) + " #{p.mode.capitalize}: " + p.description] = p.id         # Build a hash for the policies to choose from
+      # Build a hash for the policies to choose from
+      @edit[:choices][policy_list_entry_text(p)] = p.id
     end
 
     @edit[:new][:policies].each_key do |key|
-      @edit[:choices].delete(key)                     # Remove any policies that are in the members list box
+      @edit[:choices].delete(key) # Remove any policies that are in the members list box
     end
 
     @edit[:current] = copy_hash(@edit[:new])
 
     @embedded = true
     @in_a_form = true
-    @edit[:current][:add] = true if @edit[:profile_id].blank?                             # Force changed to be true if adding a record
+    @edit[:current][:add] = true if @edit[:profile_id].blank? # Force changed to be true if adding a record
     session[:changed] = (@edit[:new] != @edit[:current])
   end
 
