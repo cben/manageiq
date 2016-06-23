@@ -641,7 +641,8 @@ class MiqPolicyController < ApplicationController
                                                         :model => ui_lookup(:models => 'Condition')}
           r[:partial => 'condition_list']
         elsif @folders
-          right_cell_text = _("%{typ} %{model}") % {:typ   => ui_model_from_id(@sb[:folder]),
+          mode = @sb[:folder]
+          right_cell_text = _("%{typ} %{model}") % {:typ   => mode.capitalize,
                                                     :model => ui_lookup(:models => 'MiqPolicy')}
           r[:partial => 'policy_folders']
         elsif @alert_profiles
