@@ -19,6 +19,9 @@ class TreeBuilderPolicy < TreeBuilder
   def compliance_control_kids(pid)
     text_i18n = {:compliance => {:host                 => N_("Host Compliance Policies"),
                                  :vm                   => N_("Vm Compliance Policies"),
+                                 :container_replicator => N_("Replicator Compliance Policies"),
+                                 :container_group      => N_("Pod Compliance Policies"),
+                                 :container_node       => N_("Container Node Compliance Policies"),
                                  :container_image      => N_("Container Image Compliance Policies")},
                  :control    => {:host                 => N_("Host Control Policies"),
                                  :vm                   => N_("Vm Control Policies"),
