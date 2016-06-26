@@ -168,3 +168,15 @@ containerimage_created,Container Image Discovered,Default,container_operations
 containerimage_compliance_check,Container Image Compliance Check,Default,compliance
 containerimage_compliance_passed,Container Image Compliance Passed,Default,compliance
 containerimage_compliance_failed,Container Image Compliance Failed,Default,compliance
+
+containernode_compliance_check,Container Node Compliance Check,Default,compliance
+containernode_compliance_passed,Container Node Compliance Passed,Default,compliance
+containernode_compliance_failed,Container Node Compliance Failed,Default,compliance
+
+containergroup_compliance_check,Pod Compliance Check,Default,compliance
+containergroup_compliance_passed,Pod Compliance Passed,Default,compliance
+containergroup_compliance_failed,Pod Compliance Failed,Default,compliance
+
+containerreplicator_compliance_check,Replicator Compliance Check,Default,compliance
+containerreplicator_compliance_passed,Replicator Compliance Passed,Default,compliance
+containerreplicator_compliance_failed,Replicator Compliance Failed,Default,compliance
