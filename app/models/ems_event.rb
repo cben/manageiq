@@ -338,6 +338,29 @@ class EmsEvent < EventStream
     ext_management_system
   end
 
+  def src_container_replicator
+    entity = container_replicator_id && ContainerReplicator.find(container_replicator_id)
+    return entity if entity
+    _log.warn("Unable to find target ContainerReplicator for event: #{inspect}")
+    nil
+  end
+
+  def src_container_group
+    entity = container_group_id && ContainerGroup.find(container_group_id)
+    return entity if entity
+    _log.warn("Unable to find target ContainerGroup for event: #{inspect}")
+    nil
+  end
+
+  def src_container_node
+    # TODO: resolve functional duplication with process_container_entities_in_event!
+    #       (https://github.com/ManageIQ/manageiq/issues/9600)
+    ContainerNode.find_by!(:ems_id => ems_id, :name => container_node_name)
+  rescue ActiveRecord::RecordNotFound
+    _log.warn("Unable to find target ContainerNode for event: #{inspect}")
+    nil
+  end
+
   #
   # Purging methods
   #
