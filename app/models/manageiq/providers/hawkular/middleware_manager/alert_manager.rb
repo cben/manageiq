@@ -3,20 +3,7 @@ module ManageIQ::Providers
     require 'hawkular/hawkular_client'
 
     def initialize(ems)
-      @alerts_client = fake_client.alerts
-    end
-
-    def fake_client
-      entrypoint = URI::HTTP.build(:host => ENV['HAWKULAR_HOST'] || 'localhost', :port => 8080).to_s
-      credentials = {
-        :username => 'jdoe',
-        :password => 'password'
-      }
-      options = {
-        :tenant => 'hawkular'
-      }
-      ::Hawkular::Client.new(:entrypoint => entrypoint, :credentials => credentials, :options => options)
-
+      @alerts_client = ems.alerts_client
     end
 
     def process_alert(operation, miq_alert)
