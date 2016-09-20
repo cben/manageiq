@@ -356,6 +356,7 @@ class MiqWorker < ApplicationRecord
   end
 
   def stop
+    #byebug_term
     miq_server.stop_worker_queue(self)
   end
 

@@ -37,6 +37,7 @@ module PerEmsWorkerMixin
 
         dups = current.uniq.find_all { |u| current.find_all { |c| c == u }.length > 1 }
         _log.info("Duplicate workers found: Current: #{current.inspect}, Desired: #{desired.inspect}, Dups: #{dups.inspect}") unless dups.empty?
+        #byebug_term unless dups.empty?
         current -= dups
 
         dups.each { |d| result[:deletes] << stop_worker_for_ems(d) }
@@ -47,6 +48,7 @@ module PerEmsWorkerMixin
             result[:adds] << w.pid unless w.nil?
           end
         elsif desired.length < current.length
+          #byebug_term
           (current - desired).each do |x|
             result[:deletes] << stop_worker_for_ems(x)
           end
