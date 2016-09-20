@@ -41,7 +41,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
     s_start = event.full_data.index("id=\"") + 4
     s_end = event.full_data.index("\"", s_start + 4) - 1
     event_id = event.full_data[s_start..s_end]
-    if event_id.start_with?("MiQ-#{alert_id}") && event.middleware_server_id == id
+    if event_id.start_with?("MiQ-#{alert_id}") #TODO set id on event && event.middleware_server_id == id
       return true
     end
     false

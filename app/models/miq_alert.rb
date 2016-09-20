@@ -555,7 +555,8 @@ class MiqAlert < ApplicationRecord
   end
 
   def evaluate_internal(target, _inputs = {})
-    if target.class.name == 'MiddlewareServer'
+    if target.class.name == 'MiddlewareServer' || target.class.name == "ManageIQ::Providers::Openshift::ContainerManager"
+
       method = "evaluate_middleware"
       options = _inputs[:ems_event]
     else
