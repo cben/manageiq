@@ -1,4 +1,4 @@
-class ManageIQ::Providers::Openshift::ContainerManager::EventCatcherHawkular < ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher
+class ManageIQ::Providers::Openshift::ContainerManager::EventCatcherHawkular < ManageIQ::Providers::BaseManager::EventCatcher
   require_nested :Runner
 
   def self.ems_class
