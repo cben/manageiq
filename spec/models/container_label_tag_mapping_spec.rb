@@ -84,6 +84,30 @@ describe ContainerLabelTagMapping do
 
       expect(ContainerLabelTagMapping.mappable_tags).to contain_exactly(tag1, tag_under_cat, tags[0])
     end
+
+    # With multiple providers you'll have multiple refresh workers,
+    # each with independently cached mapping table.
+    context "2 workers with independent cache" do
+      it "handle known value simultaneously" do
+        label(node, 'name', 'value-1')
+        cached1 = ContainerLabelTagMapping::Cached.new
+        cached2 = ContainerLabelTagMapping::Cached.new
+        tags1 = cached1.tags_for_entity(node)
+        tags2 = cached2.tags_for_entity(node)
+        expect(tags1).to contain_exactly(tag1, tag_under_cat)
+        expect(tags2).to contain_exactly(tag1, tag_under_cat)
+      end
+
+      pending "handle new value encountered simultaneously" do
+        label(node, 'name', 'value-2')
+        cached1 = ContainerLabelTagMapping::Cached.new
+        cached2 = ContainerLabelTagMapping::Cached.new
+        tags1 = cached1.tags_for_entity(node)
+        tags2 = cached2.tags_for_entity(node)
+        expect(tags1.size).to eq(1)
+        expect(tags1).to eq(tags2)
+      end
+    end
   end
 
   context "given an empty label value" do
