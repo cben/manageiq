@@ -56,6 +56,7 @@ describe ContainerLabelTagMapping do
   context "with any-value and specific-value mappings" do
     before do
       FactoryGirl.create(:container_label_tag_mapping, :tag => cat_tag)
+      # Map 1 value -> 2 tags, to make it more interesting.
       FactoryGirl.create(:container_label_tag_mapping, :label_value => 'value-1', :tag => tag1)
       FactoryGirl.create(:container_label_tag_mapping, :label_value => 'value-1', :tag => tag_under_cat)
       # Force a tag to exist that we don't map to (for testing .mappable_tags).
@@ -107,6 +108,21 @@ describe ContainerLabelTagMapping do
         expect(tags1.size).to eq(1)
         expect(tags1).to eq(tags2)
       end
+    end
+  end
+
+  context "with 2 any-value mappings onto same category" do
+    before do
+      FactoryGirl.create(:container_label_tag_mapping, :label_name => 'name1', :tag => cat_tag)
+      FactoryGirl.create(:container_label_tag_mapping, :label_name => 'name2', :tag => cat_tag)
+    end
+
+    pending "maps same new value in both into 1 new tag" do
+      label(node, 'name1', 'value')
+      label(node, 'name2', 'value')
+      tags = ContainerLabelTagMapping.tags_for_entity(node)
+      expect(tags.size).to eq(1)
+      expect(ContainerLabelTagMapping.mappable_tags).to contain_exactly(tags[0])
     end
   end
 
