@@ -422,8 +422,8 @@ module EmsRefresh::SaveInventoryContainer
     end
 
     begin
-      current_tags = labels.collect_concat { |label| ContainerLabelTagMapping.tags_for_label(label) }
-      mappable_tags = ContainerLabelTagMapping.mappable_tags
+      current_tags = labels.collect_concat { |label| ContainerLabelTagMapping.global_cache.tags_for_label(label) }
+      mappable_tags = ContainerLabelTagMapping.global_cache.mappable_tags
       entity.tags = entity.tags - mappable_tags + current_tags
     rescue => err
       raise if EmsRefresh.debug_failures

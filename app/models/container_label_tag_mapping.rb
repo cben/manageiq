@@ -13,23 +13,13 @@ class ContainerLabelTagMapping < ApplicationRecord
 
   belongs_to :tag
 
+  # TODO: get rid of global cache, grab a `Cached` instance during refresh.
   def self.drop_cache
     @global_cache = nil
   end
 
-  def self.mappable_tags
+  def self.global_cache
     @global_cache ||= Cached.new
-    @global_cache.mappable_tags
-  end
-
-  def self.tags_for_entity(entity)
-    @global_cache ||= Cached.new
-    @global_cache.tags_for_entity(entity)
-  end
-
-  def self.tags_for_label(label)
-    @global_cache ||= Cached.new
-    @global_cache.tags_for_label(label)
   end
 
   class Cached

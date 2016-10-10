@@ -17,20 +17,12 @@ describe ContainerLabelTagMapping do
     cat_classification.add_entry(:name => 'my_empty', :description => 'Custom description for empty value').tag
   end
 
-  # Each test here may populate the table differently.
-  after :each do
-    ContainerLabelTagMapping.drop_cache
-  end
-  # If the mapping was called from *elsewhere* there might already be a stale cache.
-  # TODO: This assumes all other tests only use an empty mapping.
-  before :all do
-    ContainerLabelTagMapping.drop_cache
-  end
+  let(:cached_mapping) { ContainerLabelTagMapping::Cached.new }
 
   context "with empty mapping" do
     it "does nothing" do
-      expect(ContainerLabelTagMapping.tags_for_entity(node)).to be_empty
-      expect(ContainerLabelTagMapping.mappable_tags).to be_empty
+      expect(cached_mapping.tags_for_entity(node)).to be_empty
+      expect(cached_mapping.mappable_tags).to be_empty
     end
   end
 
@@ -42,14 +34,14 @@ describe ContainerLabelTagMapping do
 
     it "tags_for_entity returns 2 tags" do
       label(node, 'name', 'value-1')
-      expect(ContainerLabelTagMapping.tags_for_entity(node)).to contain_exactly(tag1, tag2)
+      expect(cached_mapping.tags_for_entity(node)).to contain_exactly(tag1, tag2)
     end
 
     it "tags_for_label returns same tags" do
       label_obj = OpenStruct.new(:resource_type => 'ContainerNode',
                                  :name          => 'name',
                                  :value         => 'value-1')
-      expect(ContainerLabelTagMapping.tags_for_label(label_obj)).to contain_exactly(tag1, tag2)
+      expect(cached_mapping.tags_for_label(label_obj)).to contain_exactly(tag1, tag2)
     end
   end
 
@@ -65,25 +57,31 @@ describe ContainerLabelTagMapping do
 
     it "prefers specific-value" do
       label(node, 'name', 'value-1')
-      expect(ContainerLabelTagMapping.tags_for_entity(node)).to contain_exactly(tag1, tag_under_cat)
+      expect(cached_mapping.tags_for_entity(node)).to contain_exactly(tag1, tag_under_cat)
     end
 
     it "creates tag for new value" do
-      expect(ContainerLabelTagMapping.mappable_tags).to contain_exactly(tag1, tag_under_cat)
+      cached_mapping1 = ContainerLabelTagMapping::Cached.new
+      expect(cached_mapping1.mappable_tags).to contain_exactly(tag1, tag_under_cat)
 
       label(node, 'name', 'value-2')
-      tags = ContainerLabelTagMapping.tags_for_entity(node)
+      tags = cached_mapping1.tags_for_entity(node)
       expect(tags.size).to eq(1)
       expect(tags[0].name).to eq(cat_tag.name + '/value_2')
       expect(tags[0].classification.description).to eq('value-2')
 
-      expect(ContainerLabelTagMapping.mappable_tags).to contain_exactly(tag1, tag_under_cat, tags[0])
+      expect(cached_mapping1.mappable_tags).to contain_exactly(tag1, tag_under_cat, tags[0])
 
       # But nothing changes when called again, the previously created tag is re-used.
 
-      expect(ContainerLabelTagMapping.tags_for_entity(node)).to contain_exactly(tags[0])
+      expect(cached_mapping1.tags_for_entity(node)).to contain_exactly(tags[0])
+      expect(cached_mapping1.mappable_tags).to contain_exactly(tag1, tag_under_cat, tags[0])
 
-      expect(ContainerLabelTagMapping.mappable_tags).to contain_exactly(tag1, tag_under_cat, tags[0])
+      # And nothing changes when we re-load the mappings table.
+
+      cached_mapping2 = ContainerLabelTagMapping::Cached.new
+      expect(cached_mapping2.tags_for_entity(node)).to contain_exactly(tags[0])
+      expect(cached_mapping2.mappable_tags).to contain_exactly(tag1, tag_under_cat, tags[0])
     end
 
     # With multiple providers you'll have multiple refresh workers,
@@ -120,9 +118,9 @@ describe ContainerLabelTagMapping do
     pending "maps same new value in both into 1 new tag" do
       label(node, 'name1', 'value')
       label(node, 'name2', 'value')
-      tags = ContainerLabelTagMapping.tags_for_entity(node)
+      tags = cached_mapping.tags_for_entity(node)
       expect(tags.size).to eq(1)
-      expect(ContainerLabelTagMapping.mappable_tags).to contain_exactly(tags[0])
+      expect(cached_mapping.mappable_tags).to contain_exactly(tags[0])
     end
   end
 
@@ -133,17 +131,17 @@ describe ContainerLabelTagMapping do
 
     it "any-value mapping generates a tag" do
       FactoryGirl.create(:container_label_tag_mapping, :tag => cat_tag)
-      tags = ContainerLabelTagMapping.tags_for_entity(node)
+      tags = cached_mapping.tags_for_entity(node)
       expect(tags.size).to eq(1)
       expect(tags[0].classification.description).to eq('<empty value>')
     end
 
     it "honors specific mapping for the empty value" do
       FactoryGirl.create(:container_label_tag_mapping, :label_value => '', :tag => empty_tag_under_cat)
-      expect(ContainerLabelTagMapping.tags_for_entity(node)).to contain_exactly(empty_tag_under_cat)
+      expect(ContainerLabelTagMapping::Cached.new.tags_for_entity(node)).to contain_exactly(empty_tag_under_cat)
       # same with both any-value and specific-value mappings
       FactoryGirl.create(:container_label_tag_mapping, :tag => cat_tag)
-      expect(ContainerLabelTagMapping.tags_for_entity(node)).to contain_exactly(empty_tag_under_cat)
+      expect(ContainerLabelTagMapping::Cached.new.tags_for_entity(node)).to contain_exactly(empty_tag_under_cat)
     end
   end
 
@@ -154,7 +152,7 @@ describe ContainerLabelTagMapping do
 
     it "creates specific-value tag and the 2 needed classifications" do
       label(node, 'name', 'value-3')
-      tags = ContainerLabelTagMapping.tags_for_entity(node)
+      tags = cached_mapping.tags_for_entity(node)
       expect(tags.size).to eq(1)
       expect(tags[0].category.description).to eq("Kubernetes label 'name'")
       expect(tags[0].classification.description).to eq('value-3')
@@ -173,12 +171,12 @@ describe ContainerLabelTagMapping do
 
     it "applies both independently" do
       label(node, 'name', 'value')
-      expect(ContainerLabelTagMapping.tags_for_entity(node)).to contain_exactly(tag1, tag2)
+      expect(cached_mapping.tags_for_entity(node)).to contain_exactly(tag1, tag2)
     end
 
     it "skips specific-type when type doesn't match" do
       label(project, 'name', 'value')
-      expect(ContainerLabelTagMapping.tags_for_entity(project)).to contain_exactly(tag2)
+      expect(cached_mapping.tags_for_entity(project)).to contain_exactly(tag2)
     end
   end
 
@@ -190,7 +188,7 @@ describe ContainerLabelTagMapping do
 
     it "resolves them independently" do
       label(node, 'name', 'value')
-      tags = ContainerLabelTagMapping.tags_for_entity(node)
+      tags = cached_mapping.tags_for_entity(node)
       expect(tags.size).to eq(2)
       expect(tags).to include(tag2)
     end
