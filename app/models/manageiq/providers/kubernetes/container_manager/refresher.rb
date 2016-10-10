@@ -8,5 +8,11 @@ module ManageIQ::Providers::Kubernetes
       EmsRefresh.log_inv_debug_trace(entities, "inv_hash:")
       ManageIQ::Providers::Kubernetes::ContainerManager::RefreshParser.ems_inv_to_hashes(entities)
     end
+
+    def save_inventory(ems, target, hashes)
+      # Allow UI changes to label->tag mappings to take effect
+      ContainerLabelTagMapping.drop_cache
+      super
+    end
   end
 end

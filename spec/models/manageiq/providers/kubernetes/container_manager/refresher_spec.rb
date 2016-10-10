@@ -21,12 +21,14 @@ describe ManageIQ::Providers::Kubernetes::ContainerManager::Refresher do
 
   # Smoke test the use of ContainerLabelTagMapping during refresh.
   before :each do
+    # Deliberately cache mappings *before* filling mappings table, to
+    # verify it's re-loaded at start of refresh.
+    ContainerLabelTagMapping.global_cache
     @name_category = FactoryGirl.create(:classification, :name => 'name', :description => 'Name')
     @label_tag_mapping = FactoryGirl.create(
       :container_label_tag_mapping,
       :label_name => 'name', :tag => @name_category.tag
     )
-    ContainerLabelTagMapping.drop_cache # ensure just created mappings are loaded
   end
   after :each do
     ContainerLabelTagMapping.drop_cache # don't affect other tests
