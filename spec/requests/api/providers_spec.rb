@@ -19,12 +19,7 @@ describe "Providers API" do
   let(:default_credentials) { {"userid" => "admin1", "password" => "password1"} }
   let(:metrics_credentials) { {"userid" => "admin2", "password" => "password2", "auth_type" => "metrics"} }
   let(:compound_credentials) { [default_credentials, metrics_credentials] }
-  let(:containers_credentials) do
-    {
-      "auth_type" => "bearer",
-      "auth_key"  => SecureRandom.hex
-    }
-  end
+  let(:containers_credentials)         { {"auth_key"  => "abraCaDabraB64==", "auth_type" => "bearer"} }
 
   let(:sample_vmware) do
     {
@@ -69,11 +64,11 @@ describe "Providers API" do
       },
       "authentication" => {
         "role"     => "bearer",
-        "auth_key" => SecureRandom.hex
+        "auth_key" => "abraCaDabraB64=="
       }
     }
   end
-  let(:updated_connection) do
+  let(:updated_connection_port) do
     {
       "endpoint"       => {
         "role"     => "default",
@@ -82,7 +77,20 @@ describe "Providers API" do
       },
       "authentication" => {
         "role"     => "bearer",
-        "auth_key" => SecureRandom.hex
+        "auth_key" => "abraCaDabraB64=="
+      }
+    }
+  end
+  let(:updated_connection_auth) do
+    {
+      "endpoint"       => {
+        "role"     => "default",
+        "hostname" => "sample_containers_multi_end_point.provider.com",
+        "port"     => 18443
+      },
+      "authentication" => {
+        "role"     => "bearer",
+        "auth_key" => "XyzzyB64"
       }
     }
   end
@@ -95,7 +103,7 @@ describe "Providers API" do
       },
       "authentication" => {
         "role"     => "hawkular",
-        "auth_key" => SecureRandom.hex
+        "auth_key" => "abraCaDabraB64=="
       }
     }
   end
@@ -535,40 +543,44 @@ describe "Providers API" do
       context "#{name}" do
         let(:containers_class) { klass }
 
-        it "does not schedule a new credentials check if endpoint does not change" do
-          api_basic_authorize collection_action_identifier(:providers, :edit)
+        let(:provider) { FactoryGirl.create(:ext_management_system, sample_containers_multi_end_point) }
 
-          provider = FactoryGirl.create(:ext_management_system, sample_containers_multi_end_point)
+        def queue_jobs
           MiqQueue.where(:method_name => "authentication_check_types",
                          :class_name  => "ExtManagementSystem",
-                         :instance_id => provider.id).delete_all
+                         :instance_id => provider.id)
+        end
 
-          run_post(providers_url(provider.id), gen_request(:edit,
-                                                           "connection_configurations" => [default_connection,
-                                                                                           hawkular_connection]))
+        def post_edit(options)
+          run_post(providers_url(provider.id), gen_request(:edit, options))
+        end
 
-          queue_jobs = MiqQueue.where(:method_name => "authentication_check_types",
-                                      :class_name  => "ExtManagementSystem",
-                                      :instance_id => provider.id)
+        it "does not schedule a new credentials check if connection does not change" do
+          api_basic_authorize collection_action_identifier(:providers, :edit)
+
+          queue_jobs.delete_all
+          post_edit("connection_configurations" => [hawkular_connection, default_connection])
           expect(queue_jobs).to be
           expect(queue_jobs.length).to eq(0)
         end
 
         it "schedules a new credentials check if endpoint change" do
+          pending("https://github.com/ManageIQ/manageiq/issues/13167")
+
           api_basic_authorize collection_action_identifier(:providers, :edit)
 
-          provider = FactoryGirl.create(:ext_management_system, sample_containers_multi_end_point)
-          MiqQueue.where(:method_name => "authentication_check_types",
-                         :class_name  => "ExtManagementSystem",
-                         :instance_id => provider.id).delete_all
+          queue_jobs.delete_all
+          post_edit("connection_configurations" => [updated_connection_port, hawkular_connection])
+          expect(queue_jobs).to be
+          expect(queue_jobs.length).to eq(1)
+          expect(queue_jobs[0].args[0][0]).to eq(:bearer)
+        end
 
-          run_post(providers_url(provider.id), gen_request(:edit,
-                                                           "connection_configurations" => [updated_connection,
-                                                                                           hawkular_connection]))
+        it "schedules a new credentials check if authentication change" do
+          api_basic_authorize collection_action_identifier(:providers, :edit)
 
-          queue_jobs = MiqQueue.where(:method_name => "authentication_check_types",
-                                      :class_name  => "ExtManagementSystem",
-                                      :instance_id => provider.id)
+          queue_jobs.delete_all
+          post_edit("connection_configurations" => [updated_connection_auth, hawkular_connection])
           expect(queue_jobs).to be
           expect(queue_jobs.length).to eq(1)
           expect(queue_jobs[0].args[0][0]).to eq(:bearer)
