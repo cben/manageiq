@@ -167,6 +167,7 @@ class ManageIQ::Providers::BaseManager::EventCatcher::Runner < ::MiqWorker::Runn
       rescue TemporaryFailure
         raise
       rescue => err
+        byebug_term
         _log.error("#{log_prefix} Event Monitor Thread aborted because [#{err.message}]")
         _log.log_backtrace(err) unless err.kind_of?(Errno::ECONNREFUSED)
         Thread.exit

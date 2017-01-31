@@ -20,6 +20,7 @@ module ManageIQ::Providers
           attributes[k.json["id"]] = values.first["value"] unless values.empty?
         end
       rescue => err
+        byebug_term
         _log.error err.message
         return nil
       end

@@ -43,6 +43,8 @@ module ManageIQ::Providers::Kubernetes::ContainerManager::EventCatcherMixin
       # asynchronously when available.
       @queue.enq event
     end
+  rescue => e
+    byebug_term
   ensure
     reset_event_monitor_handle
   end

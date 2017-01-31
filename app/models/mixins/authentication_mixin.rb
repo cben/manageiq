@@ -323,6 +323,7 @@ module AuthenticationMixin
         [:incomplete, "Missing credentials"]
       else
         begin
+          #byebug
           verify_credentials(type, options) ? [:valid, ""] : [:invalid, "Unknown reason"]
         rescue MiqException::MiqUnreachableError => err
           [:unreachable, err]

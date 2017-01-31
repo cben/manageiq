@@ -110,6 +110,7 @@ module ManageIQ::Providers::Kubernetes::ContainerManagerMixin
 
   def verify_credentials(auth_type = nil, options = {})
     options = options.merge(:auth_type => auth_type)
+    #byebug
     if options[:auth_type].to_s == "hawkular"
       verify_hawkular_credentials
     else
@@ -195,6 +196,7 @@ module ManageIQ::Providers::Kubernetes::ContainerManagerMixin
                                  scan_data[:pod_name],
                                  scan_data[:pod_port],
                                  scan_data[:pod_namespace])
+    #byebug_term
     nethttp_options =  {
       :use_ssl => true,
       :verify_mode => verify_ssl_mode,

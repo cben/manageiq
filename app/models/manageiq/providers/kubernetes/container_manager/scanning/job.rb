@@ -322,6 +322,8 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
       client.headers.each { |k, v| request[k.to_s] = v }
       return http.request(request)
     end
+  rescue => e
+    byebug_term
   end
 
   def pod_proxy_url(client, path = "")
