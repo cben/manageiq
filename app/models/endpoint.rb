@@ -1,6 +1,8 @@
 require 'openssl'
 
 class Endpoint < ApplicationRecord
+  require_relative 'endpoint/certificate_helper'
+
   belongs_to :resource, :polymorphic => true
 
   default_value_for :verify_ssl, OpenSSL::SSL::VERIFY_PEER
