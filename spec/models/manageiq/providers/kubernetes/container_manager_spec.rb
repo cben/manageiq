@@ -42,7 +42,7 @@ describe ManageIQ::Providers::Kubernetes::ContainerManager do
       )
 
       expect(entity).to be_kind_of(MiqContainerGroup)
-      expect(entity.verify_mode).to eq(@ems.verify_ssl_mode)
+      expect(entity.http_options).to include(:use_ssl => true, :verify_mode => @ems.verify_ssl_mode)
       expect(entity.headers).to eq("Authorization" => "Bearer valid-token")
       expect(entity.guest_os).to eq('GuestOS')
     end
