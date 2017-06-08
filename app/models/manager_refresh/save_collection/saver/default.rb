@@ -4,6 +4,7 @@ module ManagerRefresh::SaveCollection
       private
 
       def save!(inventory_collection, association)
+        #byebug if inventory_collection.model_class.name == 'ContainerImage'
         attributes_index        = {}
         inventory_objects_index = {}
         inventory_collection.each do |inventory_object|
@@ -33,6 +34,7 @@ module ManagerRefresh::SaveCollection
               # so we always keep the oldest record in the case of duplicates.
               _log.warn("A duplicate record was detected and destroyed, inventory_collection: "\
                         "'#{inventory_collection}', record: '#{record}', duplicate_index: '#{index}'")
+              byebug
               record.destroy
             else
               unique_db_indexes << index
@@ -44,6 +46,7 @@ module ManagerRefresh::SaveCollection
             if inventory_object.nil?
               # Record was found in the DB but not sent for saving, that means it doesn't exist anymore and we should
               # delete it from the DB.
+              byebug
               deleted_counter += 1 if delete_record!(inventory_collection, record)
             else
               # Record was found in the DB and sent for saving, we will be updating the DB.
@@ -62,17 +65,19 @@ module ManagerRefresh::SaveCollection
             end
           end
         end
-        _log.info("*************** PROCESSED #{inventory_collection}, created=#{created_counter}, "\
+        puts("*************** PROCESSED #{inventory_collection}, created=#{created_counter}, "\
                   "updated=#{inventory_collection_size - created_counter}, deleted=#{deleted_counter} *************")
       end
 
       def delete_record!(inventory_collection, record)
+        byebug
         return false unless inventory_collection.delete_allowed?
         record.public_send(inventory_collection.delete_method)
         true
       end
 
       def update_record!(inventory_collection, record, hash, inventory_object)
+        # byebug if inventory_collection.model_class.name == 'ContainerProject'
         record.assign_attributes(hash.except(:id, :type))
         record.save if !inventory_collection.check_changed? || record.changed?
 
@@ -80,11 +85,14 @@ module ManagerRefresh::SaveCollection
       end
 
       def create_record!(inventory_collection, hash, inventory_object)
+        # byebug if inventory_collection.model_class.name == 'ContainerProject'
         return unless assert_referential_integrity(hash, inventory_object)
 
         record = inventory_collection.model_class.create!(hash.except(:id))
 
         inventory_object.id = record.id
+      rescue => e
+        byebug
       end
     end
   end

@@ -572,6 +572,8 @@ module ManagerRefresh
 
     def object_index_with_keys(keys, object)
       keys.map { |attribute| object.public_send(attribute).to_s }.join(stringify_joiner)
+    rescue => e
+      byebug
     end
 
     def stringify_joiner
@@ -863,6 +865,8 @@ module ManagerRefresh
     def full_collection_for_comparison
       return arel unless arel.nil?
       parent.send(association)
+    rescue => e
+      byebug
     end
 
     private
