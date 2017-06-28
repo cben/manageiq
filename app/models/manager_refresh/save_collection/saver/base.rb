@@ -61,6 +61,7 @@ module ManagerRefresh::SaveCollection
       end
 
       def delete_record!(inventory_collection, record)
+        byebug
         return false unless inventory_collection.delete_allowed?
         record.public_send(inventory_collection.delete_method)
         true

@@ -6,6 +6,7 @@ module ManagerRefresh
 
     # TODO: ems_ref is inaccurate name, doubly so if it depends on ref.
     def initialize(inventory_collection, ems_ref, ref: :manager_ref, key: nil, default: nil)
+      byebug if ems_ref == '__'
       @ems_ref              = ems_ref
       @ref                  = ref
       @inventory_collection = inventory_collection
@@ -78,7 +79,9 @@ module ManagerRefresh
     end
 
     def load_object
+      #byebug if inventory_collection.model_class.name == 'ContainerReplicator'
       inventory_collection.find(to_s, :ref => ref)
+        .tap {|res| byebug if res.nil? }
     end
   end
 end

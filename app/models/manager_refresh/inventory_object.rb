@@ -20,6 +20,7 @@ module ManagerRefresh
 
     def id_with_keys(keys)
       keys.map { |attribute| data[attribute].try(:id) || data[attribute].to_s }.join("__")
+        .tap { |res| p [inventory_collection.model_class.name, keys, res] }
     end
 
     def to_raw_lazy_relation

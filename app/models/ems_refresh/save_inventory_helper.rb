@@ -132,8 +132,11 @@ module EmsRefresh::SaveInventoryHelper
 
     hashes.each do |hash|
       record = record_index[build_index_from_hash(keys, hash, record_class)]
+      byebug if record.nil?
       hash[:id] = record.id
     end
+  rescue => e
+    byebug
   end
 
   def build_index_from_hash(keys, hash, record_class)
