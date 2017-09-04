@@ -13,9 +13,14 @@ env:
   - RUBY_GC_HEAP_GROWTH_MAX_SLOTS=300000
   - RUBY_GC_HEAP_INIT_SLOTS=600000
   - RUBY_GC_HEAP_GROWTH_FACTOR=1.25
-  - PARALLEL_TEST_PROCESSORS=2
+  # https://coveralls.zendesk.com/hc/en-us/articles/203484329-Parallel-Build-Webhook
+  # TODO: notification to make Coveralls combine the partial uploads
+  - COVERALLS_PARALLEL=true
+  # https://github.com/grosser/parallel_tests/wiki/Distributed-Parallel-Tests-and-Travis-Support
+  - PARALLEL_TEST_PROCESSORS=4
   matrix:
-  - TEST_SUITE=vmdb PARALLEL=true
+  - TEST_SUITE=vmdb PARALLEL=true TEST_GROUPS=1,2
+  - TEST_SUITE=vmdb PARALLEL=true TEST_GROUPS=3,4
   - TEST_SUITE=migrations
   - TEST_SUITE=brakeman
 matrix:
