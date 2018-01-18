@@ -18,7 +18,9 @@ def manageiq_plugin(plugin_name)
 end
 
 manageiq_plugin "manageiq-providers-ansible_tower" # can't move this down yet, because we can't autoload ManageIQ::Providers::AnsibleTower::Shared
-manageiq_plugin "manageiq-schema"
+
+#manageiq_plugin "manageiq-schema" -- overriding to test https://github.com/ManageIQ/manageiq-schema/pull/151
+gem "manageiq-schema", :git => "https://github.com/cben/manageiq-schema", :branch => "quota-decimal"
 
 # Unmodified gems
 gem "activerecord-id_regions",        "~>0.2.0"
