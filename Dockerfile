@@ -10,9 +10,9 @@ ENV APPLIANCE_ROOT /opt/manageiq/manageiq-appliance
 ENV SSUI_ROOT /opt/manageiq/manageiq-ui-self_service
 
 # Fetch postgresql 9.4 COPR and pglogical repos
-RUN curl --silent --show-error --location --insecure -o /etc/yum.repos.d/rhscl-rh-postgresql94-epel-7.repo \
-https://copr-fe.cloud.fedoraproject.org/coprs/rhscl/rh-postgresql94/repo/epel-7/rhscl-rh-postgresql94-epel-7.repo && \
-RUN curl --silent --show-error --location --insecure -o /etc/yum.repos.d/ncarboni-pglogical-SCL-epel-7.repo \
+RUN curl --silent --show-error --location -o /etc/yum.repos.d/rhscl-rh-postgresql94-epel-7.repo \
+https://copr.fedorainfracloud.org/coprs/rhscl/rh-postgresql94/repo/epel-7/rhscl-rh-postgresql94-epel-7.repo && \
+RUN curl --silent --show-error --location -o /etc/yum.repos.d/ncarboni-pglogical-SCL-epel-7.repo \
 https://copr.fedorainfracloud.org/coprs/ncarboni/pglogical-SCL/repo/epel-7/ncarboni-pglogical-SCL-epel-7.repo
 
 ## Install EPEL repo, yum necessary packages for the build without docs, clean all caches
